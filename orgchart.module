@@ -1,0 +1,75 @@
+<?php
+/**
+ * @file
+ * Provides jOrgChart-library-based visualization of Book menu tree.
+ */
+
+
+/**
+ * Implements hook_permission().
+ */
+function orgchart_permission() {
+  return array(
+    'view orgchart' => array(
+      'title' => t('View org charts'),
+    )
+  );
+}
+
+function RecurseArray( $inarray, $toarray ){ 
+  foreach ( $inarray as $inkey => $inval ) 
+  { 
+     if ( is_array( $inval ) ) 
+     { 
+         $toarray = $this->RecurseArray( $inval, $toarray ); 
+     } 
+     else 
+     { 
+         $toarray[] = $inval; 
+     } 
+  } 
+
+  return $toarray; 
+} 
+function orgchart_render() {
+  global $base_url;
+  //drupal_add_js(drupal_get_path('module','orgchart').'/jquery.min.js');
+  //drupal_add_js(drupal_get_path('module','orgchart').'/jquery-ui.min.js');
+  drupal_add_js(drupal_get_path('module','orgchart').'/jquery.jOrgChart.js');
+  drupal_add_js(drupal_get_path('module','orgchart').'/prettify.js');
+  drupal_add_js(drupal_get_path('module','orgchart').'/orgchart.js');
+  drupal_add_js(drupal_get_path('module','orgchart').'/chartdraw.js');
+  drupal_add_css(drupal_get_path('module','orgchart').'/jquery.jOrgChart.css');
+  drupal_add_css(drupal_get_path('module','orgchart').'/prettify.css');
+  drupal_add_css(drupal_get_path('module','orgchart').'/custom.css');
+
+  $page = '';
+
+  $this_nid = arg(1);
+
+  $get_node = node_load($this_nid);
+
+  $book_tree = menu_tree_all_data(book_menu_name($get_node->book['bid']));
+  
+  dsm($book_tree);
+  $page .= '<ul id="org" style="display:none">';
+  foreach($book_tree as $v){  
+    $page .= '<li><a =href"'.$base_url.'/node/'.$v['link']['link_path'].'">'.$v['link']['link_title'].'</a>';
+    if(count($v['below']) > 0){
+      $page .= '<ul>';
+      foreach($v['below'] as $b){
+          $page .='<li>'.$b['link']['link_title'].'</li>';
+      }
+      $page .= '</ul>';
+    }
+  
+  }
+  $page .= '</li>';  
+  $page .= '</ul>';
+  $page .= '<div id="chart" class="orgChart"></div>';
+  
+  return $page;
+}
+
+
+
