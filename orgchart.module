@@ -39,19 +39,12 @@ function recurse_array($inarray){
   $list = '';
   foreach($inarray as $k => $v){
     dsm($v);
-    $list .= '<li>'.$v['link']['link_title'].'</li>'; 
-///*    if(is_array($v)){
-    foreach($v['below'] as $lk => $lv){
-      $list .= '<ul>'; 
-      if($lv['below']){
-       recurse_array($lv['below']);
-      }
-      else{
-        $list .= '<li>'.$lv['link']['link_title'].'</li>';    
-      }
-      $list .= '</ul>';
+    $list .= '<li>'.$v['link']['link_title']; 
+    if(is_array($v['below'])){ 
+      $list .= '<ul>';
+      $list .= recurse_array($v['below']);
+      $list .= '</ul></li>';
     }
-    //}*/
   }  
   return $list;
 }
