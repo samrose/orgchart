@@ -16,23 +16,50 @@ function orgchart_permission() {
   );
 }
 
-function RecurseArray( $inarray, $toarray ){ 
-  foreach ( $inarray as $inkey => $inval ) 
-  { 
-     if ( is_array( $inval ) ) 
-     { 
-         $toarray = $this->RecurseArray( $inval, $toarray ); 
-     } 
-     else 
-     { 
-         $toarray[] = $inval; 
-     } 
+/*function RecurseArray( $inarray ){ 
+  global $base_url;
+  $page = '';
+  $page .= '<ul id="org" style="display:none">';
+  foreach ( $inarray as $k => $v ){ 
+      dsm($v);
+     if ( is_array($v) && count($v) > 0 && $v == $v['below']){ 
+      RecurseArray($v);
+   //}elseif( $inarray['link'] && count($v['link'] > 0)){
+     }else{ 
+       $page .= '<ul>';
+       $page .= '<li><a =href"'.$base_url.'/node/'.$v['link']['link_path'].'">'.$v['link']['link_title'].'</a></li>'; 
+       $page .= '</ul>';
+     }
   } 
+  $page .= '</ul>';
+  return $page; 
+} */
 
-  return $toarray; 
-} 
+function recurse_array($inarray){
+  $list = '';
+  foreach($inarray as $k => $v){
+    dsm($v);
+    $list .= '<li>'.$v['link']['link_title'].'</li>'; 
+///*    if(is_array($v)){
+    foreach($v['below'] as $lk => $lv){
+      $list .= '<ul>'; 
+      if($lv['below']){
+       recurse_array($lv['below']);
+      }
+      else{
+        $list .= '<li>'.$lv['link']['link_title'].'</li>';    
+      }
+      $list .= '</ul>';
+    }
+    //}*/
+  }  
+  return $list;
+}
+
 function orgchart_render() {
   global $base_url;
+  $page = '';
+
   //drupal_add_js(drupal_get_path('module','orgchart').'/jquery.min.js');
   //drupal_add_js(drupal_get_path('module','orgchart').'/jquery-ui.min.js');
   drupal_add_js(drupal_get_path('module','orgchart').'/jquery.jOrgChart.js');
@@ -43,7 +70,6 @@ function orgchart_render() {
   drupal_add_css(drupal_get_path('module','orgchart').'/prettify.css');
   drupal_add_css(drupal_get_path('module','orgchart').'/custom.css');
 
-  $page = '';
 
   $this_nid = arg(1);
 
@@ -51,23 +77,22 @@ function orgchart_render() {
 
   $book_tree = menu_tree_all_data(book_menu_name($get_node->book['bid']));
   
-  dsm($book_tree);
+  //dsm($book_tree);
   $page .= '<ul id="org" style="display:none">';
-  foreach($book_tree as $v){  
-    $page .= '<li><a =href"'.$base_url.'/node/'.$v['link']['link_path'].'">'.$v['link']['link_title'].'</a>';
-    if(count($v['below']) > 0){
+  foreach($book_tree as $v){
+    if($v['link']){    
+      $page .= '<li><a href="'.$base_url.'/'.$v['link']['link_path'].'">'.$v['link']['link_title'].'</a>';
+    }
+    if($v['below'] && count($v['below']) > 0){
+      
       $page .= '<ul>';
-      foreach($v['below'] as $b){
-          $page .='<li>'.$b['link']['link_title'].'</li>';
-      }
+      $page .= recurse_array($v['below']);
       $page .= '</ul>';
     }
-  
   }
   $page .= '</li>';  
   $page .= '</ul>';
   $page .= '<div id="chart" class="orgChart"></div>';
-  
   return $page;
 }
 
