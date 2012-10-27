@@ -16,30 +16,13 @@ function orgchart_permission() {
   );
 }
 
-/*function RecurseArray( $inarray ){ 
-  global $base_url;
-  $page = '';
-  $page .= '<ul id="org" style="display:none">';
-  foreach ( $inarray as $k => $v ){ 
-      dsm($v);
-     if ( is_array($v) && count($v) > 0 && $v == $v['below']){ 
-      RecurseArray($v);
-   //}elseif( $inarray['link'] && count($v['link'] > 0)){
-     }else{ 
-       $page .= '<ul>';
-       $page .= '<li><a =href"'.$base_url.'/node/'.$v['link']['link_path'].'">'.$v['link']['link_title'].'</a></li>'; 
-       $page .= '</ul>';
-     }
-  } 
-  $page .= '</ul>';
-  return $page; 
-} */
 
 function recurse_array($inarray){
-  $list = '';
+  global $base_url;
+  $list = ''; //empty the var
   foreach($inarray as $k => $v){
-    dsm($v);
-    $list .= '<li>'.$v['link']['link_title']; 
+    //dsm($v); used for testing
+    $list .= '<li><a href="'.$base_url.'/'.$v['link']['link_path'].'">'.$v['link']['link_title'].'</a>'; 
     if(is_array($v['below'])){ 
       $list .= '<ul>';
       $list .= recurse_array($v['below']);
@@ -54,7 +37,7 @@ function orgchart_render() {
   $page = '';
 
   //drupal_add_js(drupal_get_path('module','orgchart').'/jquery.min.js');
-  //drupal_add_js(drupal_get_path('module','orgchart').'/jquery-ui.min.js');
+  //drupal_add_js(drupal_get_path('module','orgchart').'/jquery-ui.min.js'); using Drupal native jquery and jquery.ui
   drupal_add_js(drupal_get_path('module','orgchart').'/jquery.jOrgChart.js');
   drupal_add_js(drupal_get_path('module','orgchart').'/prettify.js');
   drupal_add_js(drupal_get_path('module','orgchart').'/orgchart.js');
@@ -64,9 +47,9 @@ function orgchart_render() {
   drupal_add_css(drupal_get_path('module','orgchart').'/custom.css');
 
 
-  $this_nid = arg(1);
+  $this_nid = arg(1); //grab nid of current page node
 
-  $get_node = node_load($this_nid);
+  $get_node = node_load($this_nid); //load node
 
   $book_tree = menu_tree_all_data(book_menu_name($get_node->book['bid']));
   
