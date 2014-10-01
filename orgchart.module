@@ -1,4 +1,25 @@
 <?php
+
+function orgchart_block_info(){
+  $blocks = array();
+    $blocks['doctree'] = array(
+      'info' => t('doctree'),
+    );
+ return $blocks;
+}
+
+function orgchart_block_view($delta = '' ) {
+  $block = array();
+  switch($delta){
+    case 'doctree': 
+      $block['content'] = orgchart_render();
+      break;
+  }
+  return $block;
+}
+
+
+
 /**
  * @file
  * Provides jOrgChart-library-based visualization of Book menu tree.
